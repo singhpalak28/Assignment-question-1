@@ -20,14 +20,34 @@ const Dashboard = () => {
   const [selectedOrderDetails, setSelectedOrderDetails] = useState({});
   const [selectedOrderTimeStamps, setSelectedOrderTimeStamps] = useState({});
 
+  const timestampsData = timestamps.results;// Extract timestamps data from the imported JSON
+  const numOrders = mockData.results.length;// Calculate the number of orders
+
+  const handleSearch = (e) => {
+    setSearchText(e.target.value); // Update the searchText state when the user types in the search bar
+  };
+
+  const handleOrderSelect = (selectedOrder) => {
+    const selectedOrderTimestamps = timestampsData.find(
+      (timestamp) => timestamp["&order"] === selectedOrder["&id"]
+    );
+
+    setSelectedOrderDetails(selectedOrder);
+    setSelectedOrderTimeStamps(selectedOrderTimestamps);
+  };
+
+  const filteredOrders = mockData.results.filter((order) =>
+  order["&id"].toLowerCase().includes(searchText.toLowerCase())
+);
+
   return (
     <div>
       <div className={styles.header}>
-        <HeaderTitle primaryTitle="Orders" secondaryTitle="5 orders" />
+        <HeaderTitle primaryTitle="Orders" secondaryTitle={`${numOrders} orders`} /> 
         <div className={styles.actionBox}>
           <Search
             value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
+            onChange={handleSearch}
           />
           <Dropdown
             options={["GBP", "USD", "JPY", "EUR"]}
@@ -47,7 +67,7 @@ const Dashboard = () => {
             title="Selected Order Timestamps"
           />
         </div>
-        <List rows={mockData.results} />
+        <List rows={filteredOrders} timestamps={timestampsData} currency={currency} onOrderSelect={handleOrderSelect}/>
       </div>
     </div>
   );
